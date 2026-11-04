@@ -86,5 +86,21 @@ class Settings(BaseSettings):
     # --- yt-dlp ---
     ytdlp_path: str = "yt-dlp"
 
+    @property
+    def MAX_FILE_SIZE_MB(self) -> int:
+        return int(self.max_file_size_bytes / (1024 * 1024))
+
+    @property
+    def STORAGE_PATH(self) -> str:
+        return self.storage_path
+
+    @property
+    def FILE_EXPIRY_HOURS(self) -> int:
+        return self.file_expiry_hours
+
+    @property
+    def DOWNLOAD_TIMEOUT_SECONDS(self) -> int:
+        return self.download_timeout_seconds
+
 
 settings = Settings()
