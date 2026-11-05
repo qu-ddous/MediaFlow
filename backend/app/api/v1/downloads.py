@@ -224,3 +224,4 @@ async def delete_download(
     await db.commit()
 
     return {"message": "Job and files deleted successfully", "job_id": job_id}
+

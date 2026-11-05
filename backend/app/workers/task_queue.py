@@ -113,3 +113,4 @@ class AsyncTaskQueue:
 
 # Global singleton instance
 task_queue = AsyncTaskQueue()
+

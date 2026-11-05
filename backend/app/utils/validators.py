@@ -28,3 +28,4 @@ def normalize_resolution(resolution_str: str) -> str:
         val = match.group(1)
         return f"{val}p"
     return res
+

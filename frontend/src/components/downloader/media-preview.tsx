@@ -65,3 +65,4 @@ export function MediaPreview({ media }: MediaPreviewProps) {
     </div>
   );
 }
+

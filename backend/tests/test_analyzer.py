@@ -26,3 +26,4 @@ async def test_analyzer_direct_url_structure():
     except Exception as e:
         # Network issues might prevent actual outbound download during local test, but parsing works
         pass
+

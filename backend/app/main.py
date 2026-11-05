@@ -78,3 +78,4 @@ async def root():
         "status": "operational",
         "api_v1": "/api/v1",
     }
+

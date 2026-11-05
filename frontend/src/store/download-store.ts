@@ -60,3 +60,4 @@ export const useDownloadStore = create<DownloadStore>((set) => ({
       return { activeDownloads: filtered };
     }),
 }));
+

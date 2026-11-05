@@ -23,3 +23,4 @@ export function useJobSSE(jobId: string | null, active: boolean = true) {
     return () => cleanup();
   }, [jobId, active, updateFromSSE]);
 }
+

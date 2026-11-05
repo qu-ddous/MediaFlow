@@ -43,3 +43,4 @@ async def analyze_media_url(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={"error": "Internal error", "message": "Failed to analyze URL. Please check the link and try again."},
         )
+

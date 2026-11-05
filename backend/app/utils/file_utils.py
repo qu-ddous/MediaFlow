@@ -50,3 +50,4 @@ def get_mime_type(file_path: str | Path) -> str:
     """Get the MIME type of a file based on its extension."""
     mime, _ = mimetypes.guess_type(str(file_path))
     return mime or "application/octet-stream"
+

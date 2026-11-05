@@ -21,3 +21,4 @@ export function Progress({ value, className, indicatorColor = "bg-primary-600", 
     </div>
   );
 }
+

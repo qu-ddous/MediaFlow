@@ -66,3 +66,4 @@ async def get_system_capabilities() -> dict:
             "video_resizing": True,
         },
     }
+

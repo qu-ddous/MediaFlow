@@ -226,3 +226,4 @@ async def run_conversion_task(
                 j.error_message = str(exc)
                 await s.commit()
         await task_queue.update_progress(jid, progress=0.0, status="failed", extra={"error": str(exc)})
+

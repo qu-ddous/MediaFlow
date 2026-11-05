@@ -63,3 +63,4 @@ class StorageService:
         if deleted_count > 0:
             logger.info("Cleaned up %d expired storage directories", deleted_count)
         return deleted_count
+

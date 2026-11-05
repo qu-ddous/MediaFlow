@@ -44,3 +44,4 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 exc,
             )
             raise exc
+

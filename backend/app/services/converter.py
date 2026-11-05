@@ -115,3 +115,4 @@ class ConversionService:
         except FFmpegError as exc:
             logger.error("FFmpeg error during conversion: %s (stderr: %s)", exc.message, exc.stderr)
             raise ConversionError(f"Conversion failed: {exc.message}")
+

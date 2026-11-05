@@ -23,3 +23,4 @@ export const STANDARD_RESOLUTIONS = [
   "480p (SD)",
   "360p",
 ];
+

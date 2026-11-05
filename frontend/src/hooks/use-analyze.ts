@@ -7,3 +7,4 @@ export function useAnalyzeUrl() {
     mutationFn: (url: string) => api.analyzeUrl(url),
   });
 }
+

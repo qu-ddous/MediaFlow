@@ -210,3 +210,4 @@ class DownloadService:
         # Return the most recently modified file in job dir
         newest = max(files, key=lambda f: f.stat().st_mtime)
         return newest
+

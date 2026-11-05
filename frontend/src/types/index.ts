@@ -110,3 +110,4 @@ export interface SystemCapabilities {
     video_resizing: boolean;
   };
 }
+

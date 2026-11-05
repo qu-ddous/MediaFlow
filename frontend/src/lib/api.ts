@@ -119,3 +119,4 @@ export const api = {
     return request("/api/v1/capabilities");
   },
 };
+

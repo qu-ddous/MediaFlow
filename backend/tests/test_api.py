@@ -55,3 +55,4 @@ async def test_create_and_get_download_job(client: AsyncClient):
     # Cancel job
     cancel_resp = await client.post(f"/api/v1/downloads/{job_id}/cancel")
     assert cancel_resp.status_code == 200
+

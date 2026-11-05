@@ -101,3 +101,4 @@ export function UrlInput({ onAnalyze, isLoading, error }: UrlInputProps) {
     </div>
   );
 }
+

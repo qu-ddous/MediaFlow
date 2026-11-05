@@ -149,3 +149,4 @@ export function ProgressCard({ job }: ProgressCardProps) {
     </div>
   );
 }
+
