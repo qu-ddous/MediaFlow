@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import logging
+import os
 from pathlib import Path
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.responses import FileResponse
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi.responses import FileResponse, StreamingResponse
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -182,9 +183,10 @@ async def retry_download_job(
 @router.get("/{job_id}/file")
 async def download_file(
     job_id: str,
+    request: Request,
     db: AsyncSession = Depends(get_db),
-) -> FileResponse:
-    """Download the completed media file to client device."""
+):
+    """Download the completed media file to client device with HTTP Range support for scrubbing."""
     result = await db.execute(select(DownloadJob).where(DownloadJob.id == job_id))
     job = result.scalar_one_or_none()
     if not job:
@@ -200,10 +202,46 @@ async def download_file(
     if not file_path.exists():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Media file has expired or was removed")
 
+    file_size = file_path.stat().st_size
+    range_header = request.headers.get("range")
+
+    if range_header:
+        # Parse range header: "bytes=start-end"
+        try:
+            byte_range = range_header.replace("bytes=", "").split("-")
+            start = int(byte_range[0]) if byte_range[0] else 0
+            end = int(byte_range[1]) if len(byte_range) > 1 and byte_range[1] else file_size - 1
+            start = max(0, start)
+            end = min(end, file_size - 1)
+            content_length = end - start + 1
+
+            def iterfile():
+                with open(file_path, "rb") as f:
+                    f.seek(start)
+                    remaining = content_length
+                    while remaining > 0:
+                        chunk_size = min(64 * 1024, remaining)
+                        data = f.read(chunk_size)
+                        if not data:
+                            break
+                        remaining -= len(data)
+                        yield data
+
+            headers = {
+                "Content-Range": f"bytes {start}-{end}/{file_size}",
+                "Accept-Ranges": "bytes",
+                "Content-Length": str(content_length),
+                "Content-Disposition": f'attachment; filename="{file_path.name}"',
+            }
+            return StreamingResponse(iterfile(), status_code=206, headers=headers, media_type="application/octet-stream")
+        except Exception as exc:
+            logger.warning("Error parsing Range header: %s", exc)
+
     return FileResponse(
         path=str(file_path),
         filename=file_path.name,
         media_type="application/octet-stream",
+        headers={"Accept-Ranges": "bytes"},
     )
 
 

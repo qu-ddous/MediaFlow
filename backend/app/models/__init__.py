@@ -1,18 +1,20 @@
-"""Export all models so Alembic and create_tables() can discover them."""
+"""Models package exports."""
 
-from app.models.base import Base, TimestampMixin, UUIDMixin
-from app.models.download import DownloadJob, JobStatus, MediaMetadata
-from app.models.conversion import ConversionJob
 from app.models.audit import AuditLog, DownloadHistory
+from app.models.base import Base
+from app.models.conversion import ConversionJob
+from app.models.download import DownloadJob, JobStatus, MediaMetadata
+from app.models.user import SystemSetting, User, UserRole
 
 __all__ = [
-    "Base",
-    "UUIDMixin",
-    "TimestampMixin",
-    "DownloadJob",
-    "MediaMetadata",
-    "JobStatus",
-    "ConversionJob",
     "AuditLog",
+    "Base",
+    "ConversionJob",
     "DownloadHistory",
+    "DownloadJob",
+    "JobStatus",
+    "MediaMetadata",
+    "SystemSetting",
+    "User",
+    "UserRole",
 ]

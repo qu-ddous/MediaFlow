@@ -6,6 +6,7 @@ import asyncio
 import json
 import logging
 import re
+import time
 from typing import Any
 from urllib.parse import urlparse
 
@@ -49,8 +50,18 @@ class AnalyzerError(Exception):
 class MediaAnalyzer:
     """Analyze a media URL and return available download options."""
 
+    _cache: dict[str, tuple[float, AnalyzeResponse]] = {}
+    CACHE_TTL_SECONDS = 300  # 5 minutes
+
     async def analyze_url(self, url: str) -> AnalyzeResponse:
         """Main entry point: validate, detect source type, extract metadata."""
+        # Check cache
+        now = time.time()
+        cached = self._cache.get(url)
+        if cached and (now - cached[0]) < self.CACHE_TTL_SECONDS:
+            logger.info("Returning cached analysis for %s", url)
+            return cached[1]
+
         # Step 1 — validate URL
         validated_url = validate_url(url)
 
@@ -65,9 +76,12 @@ class MediaAnalyzer:
 
         # Step 4 — branch on source type
         if source_type == "direct":
-            return await self._analyze_direct(validated_url)
+            res = await self._analyze_direct(validated_url)
         else:
-            return await self._analyze_ytdlp(validated_url, source_type)
+            res = await self._analyze_ytdlp(validated_url, source_type)
+
+        self._cache[url] = (now, res)
+        return res
 
     # ── Source-type detection ─────────────────────────────────────────
 

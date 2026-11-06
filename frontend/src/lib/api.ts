@@ -107,6 +107,23 @@ export const api = {
     });
   },
 
+  async uploadAndConvert(formData: FormData): Promise<{ job_id: string; status: string }> {
+    const url = `${API_BASE_URL}/api/v1/conversions/upload`;
+    const response = await fetch(url, {
+      method: "POST",
+      body: formData,
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new ApiError(err.detail || "Upload conversion failed", response.status);
+    }
+    return response.json();
+  },
+
+  getConvertedFileUrl(jobId: string): string {
+    return `${API_BASE_URL}/api/v1/conversions/${jobId}/file`;
+  },
+
   async getConversion(jobId: string): Promise<ConversionJob> {
     return request<ConversionJob>(`/api/v1/conversions/${jobId}`);
   },

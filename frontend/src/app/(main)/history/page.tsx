@@ -1,17 +1,45 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Download, Trash2, History, ExternalLink, FileVideo, FileAudio } from "lucide-react";
 import { useDownloads, useDeleteDownload } from "@/hooks/use-downloads";
 import { formatFileSize, truncateText } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/common/empty-state";
+import { Modal } from "@/components/ui/modal";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
 
 export default function HistoryPage() {
   const { data: downloads, isLoading } = useDownloads();
   const deleteMutation = useDeleteDownload();
+  const { toast } = useToast();
+
+  const [jobToDelete, setJobToDelete] = useState<string | null>(null);
 
   const completed = (downloads || []).filter((d) => d.status === "completed");
+
+  const confirmDelete = async () => {
+    if (!jobToDelete) return;
+    try {
+      await deleteMutation.mutateAsync(jobToDelete);
+      toast({
+        title: "Record Deleted",
+        description: "The download history record and temporary file were removed.",
+        type: "info",
+      });
+    } catch {
+      toast({
+        title: "Delete Failed",
+        description: "Unable to delete download record.",
+        type: "error",
+      });
+    } finally {
+      setJobToDelete(null);
+    }
+  };
 
   return (
     <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-10 space-y-6">
@@ -25,19 +53,15 @@ export default function HistoryPage() {
       {isLoading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-20 rounded-2xl bg-slate-100 animate-pulse" />
+            <Skeleton key={i} className="h-20 w-full rounded-2xl" />
           ))}
         </div>
       ) : completed.length === 0 ? (
-        <div className="flex flex-col items-center justify-center p-12 text-center rounded-2xl bg-white border border-slate-200/80">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400 mb-3">
-            <History className="h-6 w-6" />
-          </div>
-          <h4 className="text-sm font-semibold text-slate-800">No completed downloads yet</h4>
-          <p className="text-xs text-slate-500 mt-1 max-w-sm">
-            Completed files will appear here ready to save or stream.
-          </p>
-        </div>
+        <EmptyState
+          icon={History}
+          title="No completed downloads yet"
+          description="Finished media files will appear here ready to save or stream."
+        />
       ) : (
         <div className="space-y-3">
           {completed.map((job) => {
@@ -77,7 +101,7 @@ export default function HistoryPage() {
                   </a>
 
                   <button
-                    onClick={() => deleteMutation.mutate(job.job_id)}
+                    onClick={() => setJobToDelete(job.job_id)}
                     className="p-2 text-slate-400 hover:text-red-500 rounded-lg transition-colors"
                     title="Delete record"
                   >
@@ -89,7 +113,32 @@ export default function HistoryPage() {
           })}
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={Boolean(jobToDelete)}
+        onClose={() => setJobToDelete(null)}
+        title="Delete Download History?"
+        description="This will permanently delete the downloaded media file from the server storage."
+      >
+        <div className="flex justify-end gap-2.5 pt-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setJobToDelete(null)}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            size="sm"
+            onClick={confirmDelete}
+            isLoading={deleteMutation.isPending}
+          >
+            Delete File
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }
-

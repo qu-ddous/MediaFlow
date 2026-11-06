@@ -22,11 +22,13 @@ import { DownloadOptions } from "@/components/downloader/download-options";
 import { DownloadQueue } from "@/components/downloads/download-queue";
 import { useAnalyzeUrl } from "@/hooks/use-analyze";
 import { useStartDownload } from "@/hooks/use-downloads";
+import { useToast } from "@/hooks/use-toast";
 import { MediaInfo } from "@/types";
 
 export default function HomePage() {
   const [analyzedMedia, setAnalyzedMedia] = useState<MediaInfo | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const { toast } = useToast();
 
   const analyzeMutation = useAnalyzeUrl();
   const downloadMutation = useStartDownload();
@@ -35,8 +37,17 @@ export default function HomePage() {
     try {
       const result = await analyzeMutation.mutateAsync(url);
       setAnalyzedMedia(result);
-    } catch {
-      // Handled by mutation error state
+      toast({
+        title: "Media Analyzed",
+        description: `Found available streams for "${result.title?.slice(0, 30) || 'media'}..."`,
+        type: "success",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Analysis Failed",
+        description: err.message || "Failed to analyze URL",
+        type: "error",
+      });
     }
   };
 
@@ -48,13 +59,22 @@ export default function HomePage() {
         format,
         quality,
       });
+      toast({
+        title: "Download Queued",
+        description: `Task added to download queue. Real-time progress starting...`,
+        type: "success",
+      });
       // Scroll smoothly to download manager
       const element = document.getElementById("download-queue-section");
       if (element) {
         element.scrollIntoView({ behavior: "smooth" });
       }
-    } catch (err) {
-      console.error("Failed to start download:", err);
+    } catch (err: any) {
+      toast({
+        title: "Download Request Failed",
+        description: err.message || "Unable to queue download",
+        type: "error",
+      });
     }
   };
 
